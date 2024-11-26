@@ -1,6 +1,6 @@
 package main
 
-import "spelling-bee/cmd"
+import "spelling_bee/cmd"
 
 func main() {
 	cmd.Execute()
