@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -15,8 +16,19 @@ type Puzzle struct {
 	ValidWordCount int64    `json:"validWordCount"`
 }
 
+type Score struct {
+	Date           string `json:"date"`
+	Response       string `json:"response"`
+	PanagramCount  int64  `json:"panagramCount"`
+	ValidWordCount int64  `json:"validWordCount"`
+}
+
 type GetResponse struct {
 	Puzzle Puzzle `json:"puzzle"`
+}
+
+type GuessRequest struct {
+	Word string `json:"word"`
 }
 
 func getBaseUrl() string {
@@ -32,7 +44,6 @@ func GetPuzzle(date string) (Puzzle, error) {
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-
 		return Puzzle{}, fmt.Errorf("error reading puzzle: %w", err)
 	}
 
@@ -43,4 +54,31 @@ func GetPuzzle(date string) (Puzzle, error) {
 	}
 
 	return getResponse.Puzzle, nil
+}
+
+func GuessPuzzle(date string, guess string) (Score, error) {
+	request := GuessRequest{guess}
+	requestJson, err := json.Marshal(request)
+	if err != nil {
+		return Score{}, fmt.Errorf("error marshalling json: %w", err)
+	}
+
+	response, err := http.Post(fmt.Sprintf("%s/guess?date=%s", getBaseUrl(), date), "application/json", bytes.NewBuffer(requestJson))
+	if err != nil {
+		return Score{}, fmt.Errorf("error sending request: %w", err)
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return Score{}, fmt.Errorf("error reading response: %w", err)
+	}
+
+	var score Score
+	err = json.Unmarshal(body, &score)
+	if err != nil {
+		return Score{}, fmt.Errorf("error unmarshalling response: %w", err)
+	}
+
+	return score, nil
 }
