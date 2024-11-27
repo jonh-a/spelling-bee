@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"spelling_bee/pkg/api"
+	"spelling_bee/pkg/ui"
 	"spelling_bee/pkg/utils"
 
 	"github.com/spf13/cobra"
@@ -20,7 +21,7 @@ var getCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(puzzle)
+		fmt.Println(ui.RenderGet(puzzle))
 	},
 }
 

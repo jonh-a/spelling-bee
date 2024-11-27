@@ -32,7 +32,7 @@ type GuessRequest struct {
 }
 
 func getBaseUrl() string {
-	return "http://localhost:3000/spelling"
+	return "https://misc.usingthe.computer/spelling"
 }
 
 func GetPuzzle(date string) (Puzzle, error) {
