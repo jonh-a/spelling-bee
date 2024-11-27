@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"spelling_bee/pkg/utils"
 )
 
 type Puzzle struct {
@@ -47,6 +48,10 @@ func GetPuzzle(date string) (Puzzle, error) {
 		return Puzzle{}, fmt.Errorf("error reading puzzle: %w", err)
 	}
 
+	if utils.CheckDebug() {
+		fmt.Println(string(body))
+	}
+
 	var getResponse GetResponse
 	err = json.Unmarshal(body, &getResponse)
 	if err != nil {
@@ -63,7 +68,12 @@ func GuessPuzzle(date string, guess string) (Score, error) {
 		return Score{}, fmt.Errorf("error marshalling json: %w", err)
 	}
 
-	response, err := http.Post(fmt.Sprintf("%s/guess?date=%s", getBaseUrl(), date), "application/json", bytes.NewBuffer(requestJson))
+	response, err := http.Post(
+		fmt.Sprintf("%s/guess?date=%s", getBaseUrl(), date),
+		"application/json",
+		bytes.NewBuffer(requestJson),
+	)
+
 	if err != nil {
 		return Score{}, fmt.Errorf("error sending request: %w", err)
 	}
@@ -72,6 +82,10 @@ func GuessPuzzle(date string, guess string) (Score, error) {
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return Score{}, fmt.Errorf("error reading response: %w", err)
+	}
+
+	if utils.CheckDebug() {
+		fmt.Println(string(body))
 	}
 
 	var score Score
